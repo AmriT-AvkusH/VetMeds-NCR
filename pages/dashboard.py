@@ -3,9 +3,8 @@ import requests
 from streamlit_lottie import st_lottie
 import time
 
-# --- HELPER FUNCTION TO LOAD LOTTIE ANIMATIONS ---
-# This function fetches the animation JSON from a URL dynamically.
-@st.cache_data # Cache data to prevent reloading on every interaction
+# --- 1. SETUP LOTTIE LOADER ---
+@st.cache_data
 def load_lottieurl(url: str):
     try:
         r = requests.get(url)
@@ -16,102 +15,92 @@ def load_lottieurl(url: str):
         return None
 
 def show_dashboard():
-    # --- LOAD ANIMATIONS ASSETS (Professional 3D Style) ---
-    # These URLs are premium-style, clean 3D animations
-    lottie_dog = load_lottieurl("https://lottie.host/a189b40d-5913-4787-982e-815310665165/9G9G9G9G9G.json") # Placeholder UUID for a clean 3D dog
-    # Using generic high quality ones for demonstration:
-    lottie_dog_real = load_lottieurl("https://assets3.lottiefiles.com/private_files/lf30_xhzgplj6.json") # Cute 3D dog
-    lottie_cat = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_zyu0q7qb.json") # Playful 3D cat
-    lottie_cow = load_lottieurl("https://assets2.lottiefiles.com/private_files/lf30_k08g3m1c.json") # Friendly 3D cow
-    lottie_goat = load_lottieurl("https://assets1.lottiefiles.com/packages/lf20_syj3y3.json") # Farm animal/Goat style
+    # --- 2. INITIALIZE TIMER ---
+    # We save the exact time the user opened the app
+    if 'start_time' not in st.session_state:
+        st.session_state.start_time = time.time()
+    
+    # Calculate how many seconds have passed
+    elapsed_seconds = time.time() - st.session_state.start_time
+    elapsed_minutes = elapsed_seconds / 60
 
-    # --- SIDEBAR LOGIN (Kept identical to before) ---
+    # --- 3. DEFINE ANIMATION URLs ---
+    # These are high-quality 3D style assets
+    url_cow = "https://lottie.host/233076c8-5459-4533-8991-8884659b819a/P83F97A4N8.json" 
+    url_cat_dog = "https://lottie.host/64b58f89-c454-46c0-9d8a-84cb2f8f740f/1J84G69K33.json"
+    url_goat = "https://lottie.host/80860456-12c8-4796-9810-72049d6387a2/7D93J67H92.json"
+
+    # --- 4. SIDEBAR LOGIN (Standard) ---
     with st.sidebar:
         st.header("👤 User Login")
         if 'user' not in st.session_state:
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
             if st.button("Login"):
-                if username and password == "admin": # Simple demo password
-                    st.session_state.user = username
-                    st.toast(f"Welcome back, {username}!", icon="🎉")
-                    time.sleep(1)
-                    st.rerun()
-                elif username:
-                     st.error("Invalid password (Try 'admin')")
+                st.session_state.user = username
+                st.rerun()
         else:
             st.success(f"Hi, {st.session_state.user}!")
-            if st.button("Logout", type="primary"):
-                del st.session_state.user
+            # Debug tool to test animations (Optional)
+            st.divider()
+            if st.button("⏩ Fast Forward Time (Test)", help="Click to skip 5 mins"):
+                st.session_state.start_time -= 300 # Subtract 5 mins
                 st.rerun()
 
-    # --- MAIN CONTENT ---
+    # --- 5. MAIN PAGE LAYOUT ---
     st.title("VetMeds NCR 🐾")
-    st.markdown("### The Complete Pet Healthcare Superapp")
-
-    # --- THE 3D ANIMATION HERO SECTION ---
-    # This creates the professional, moving banner
-    with st.container():
-        anim_col1, anim_col2, anim_col3, anim_col4 = st.columns(4)
-        
-        with anim_col1:
-             if lottie_dog_real:
-                 st_lottie(lottie_dog_real, height=150, key="dog")
-             else: st.write("🐕") # Fallback
-
-        with anim_col2:
-             if lottie_cat:
-                 st_lottie(lottie_cat, height=150, key="cat")
-             else: st.write("🐈")
-
-        with anim_col3:
-             if lottie_cow:
-                st_lottie(lottie_cow, height=150, key="cow")
-             else: st.write("🐄")
-
-        with anim_col4:
-             if lottie_goat:
-                 st_lottie(lottie_goat, height=150, key="goat")
-             else: st.write("🐐")
-            
-    st.divider()
     
-    # Emergency Banner
-    st.error("🚑 **Emergency?** Call 24/7 Animal Ambulance: **1962**")
+    # --- THE SMART ANIMATION SECTION ---
+    # This container holds the classy greeting
+    with st.container(border=True):
+        col_anim, col_text = st.columns([1, 2])
+        
+        with col_anim:
+            # LOGIC: CHANGE ANIMATION BASED ON TIME
+            if elapsed_minutes < 5:
+                # 0 to 5 Minutes: SHOW COW
+                anim_data = load_lottieurl(url_cow)
+                st_lottie(anim_data, height=180, key="cow_anim")
+                greeting = "Moo! Welcome to VetMeds!"
+                sub_text = "I'm here to help you get started."
+                
+            elif elapsed_minutes < 10:
+                # 5 to 10 Minutes: SHOW CAT & DOG
+                anim_data = load_lottieurl(url_cat_dog)
+                st_lottie(anim_data, height=180, key="catdog_anim")
+                greeting = "Woof & Meow! Still here?"
+                sub_text = "Check out our Pet Profile section!"
+                
+            else:
+                # 10+ Minutes: SHOW GOAT
+                anim_data = load_lottieurl(url_goat)
+                st_lottie(anim_data, height=180, key="goat_anim")
+                greeting = "Baa! You are the G.O.A.T!"
+                sub_text = "Don't forget to book a consultation."
 
-    # Quick Action Grid (Tata 1mg Style)
+        with col_text:
+            st.markdown(f"## {greeting}")
+            st.markdown(f"### *{sub_text}*")
+            st.caption(f"Session Time: {int(elapsed_minutes)} mins")
+            st.progress(min(elapsed_minutes/15, 1.0)) # Visual timer bar
+
+    # --- 6. DASHBOARD ACTIONS ---
+    st.divider()
     c1, c2, c3, c4 = st.columns(4)
     
     with c1:
-        with st.container(border=True):
-            st.markdown("### 💊 Pharmacy")
-            st.caption("Flat 20% off on Medicines")
-            if st.button("Order Now", use_container_width=True):
-                st.switch_page("pages/buy.py")
-
+        if st.button("💊 Pharmacy", use_container_width=True):
+            st.switch_page("pages/buy.py")
     with c2:
-        with st.container(border=True):
-            st.markdown("### 📹 Consult Vet")
-            st.caption("Video Call in 5 mins")
-            if st.button("Book Doctor", use_container_width=True):
-                st.switch_page("pages/consult.py")
-
+        if st.button("📹 Consult Vet", use_container_width=True):
+            st.switch_page("pages/consult.py")
     with c3:
-        with st.container(border=True):
-            st.markdown("### 🐕 Pet Profile")
-            st.caption("Manage Dosages & Diet")
-            if st.button("View Profile", use_container_width=True):
-                st.switch_page("pages/pet.py")
-    
+        if st.button("🐕 Pet Profile", use_container_width=True):
+            st.switch_page("pages/pet.py")
     with c4:
-        with st.container(border=True):
-            st.markdown("### 📍 Find Vet")
-            st.caption("Govt & Pvt Hospitals")
-            if st.button("Open Map", use_container_width=True):
-                st.switch_page("pages/map.py")
+        if st.button("📍 Find Vet", use_container_width=True):
+            st.switch_page("pages/map.py")
 
-    st.divider()
-    # Using a cleaner, professional footer image
-    st.image("https://img.freepik.com/free-vector/veterinarians-taking-care-pets_23-2148533585.jpg?w=1380&t=st=1715528000~exp=1715528600~hmac=10c23729950928617437620327171439", caption="Trusted by 10,000+ Pet Parents in NCR | Professional Care", use_container_width=True)
+    st.image("https://img.freepik.com/free-vector/veterinarians-taking-care-pets_23-2148533585.jpg?w=1380", use_container_width=True)
 
 show_dashboard()
