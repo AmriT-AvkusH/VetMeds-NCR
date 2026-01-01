@@ -16,21 +16,18 @@ def load_lottieurl(url: str):
 
 def show_dashboard():
     # --- 2. INITIALIZE TIMER ---
-    # We save the exact time the user opened the app
     if 'start_time' not in st.session_state:
         st.session_state.start_time = time.time()
     
-    # Calculate how many seconds have passed
     elapsed_seconds = time.time() - st.session_state.start_time
     elapsed_minutes = elapsed_seconds / 60
 
     # --- 3. DEFINE ANIMATION URLs ---
-    # These are high-quality 3D style assets
-    url_cow = "https://lottie.host/233076c8-5459-4533-8991-8884659b819a/P83F97A4N8.json" 
+    url_cow = "https://lottie.host/233076c8-5459-4533-8991-8884659b819a/P83F97A4N8.json"
     url_cat_dog = "https://lottie.host/64b58f89-c454-46c0-9d8a-84cb2f8f740f/1J84G69K33.json"
     url_goat = "https://lottie.host/80860456-12c8-4796-9810-72049d6387a2/7D93J67H92.json"
 
-    # --- 4. SIDEBAR LOGIN (Standard) ---
+    # --- 4. SIDEBAR LOGIN ---
     with st.sidebar:
         st.header("👤 User Login")
         if 'user' not in st.session_state:
@@ -41,40 +38,50 @@ def show_dashboard():
                 st.rerun()
         else:
             st.success(f"Hi, {st.session_state.user}!")
-            # Debug tool to test animations (Optional)
             st.divider()
             if st.button("⏩ Fast Forward Time (Test)", help="Click to skip 5 mins"):
-                st.session_state.start_time -= 300 # Subtract 5 mins
+                st.session_state.start_time -= 300
                 st.rerun()
 
     # --- 5. MAIN PAGE LAYOUT ---
     st.title("VetMeds NCR 🐾")
     
-    # --- THE SMART ANIMATION SECTION ---
-    # This container holds the classy greeting
+    # --- THE SMART ANIMATION SECTION (CRASH PROOF) ---
     with st.container(border=True):
         col_anim, col_text = st.columns([1, 2])
         
         with col_anim:
-            # LOGIC: CHANGE ANIMATION BASED ON TIME
+            # SAFETY CHECK: Only try to show animation if data loaded successfully
             if elapsed_minutes < 5:
-                # 0 to 5 Minutes: SHOW COW
+                # 0-5 mins: COW
                 anim_data = load_lottieurl(url_cow)
-                st_lottie(anim_data, height=180, key="cow_anim")
+                if anim_data:
+                    st_lottie(anim_data, height=180, key="cow_anim")
+                else:
+                    st.header("🐄") # Fallback Emoji if internet fails
+                
                 greeting = "Moo! Welcome to VetMeds!"
                 sub_text = "I'm here to help you get started."
                 
             elif elapsed_minutes < 10:
-                # 5 to 10 Minutes: SHOW CAT & DOG
+                # 5-10 mins: CAT & DOG
                 anim_data = load_lottieurl(url_cat_dog)
-                st_lottie(anim_data, height=180, key="catdog_anim")
+                if anim_data:
+                    st_lottie(anim_data, height=180, key="catdog_anim")
+                else:
+                    st.header("🐕🐈") # Fallback
+                
                 greeting = "Woof & Meow! Still here?"
                 sub_text = "Check out our Pet Profile section!"
                 
             else:
-                # 10+ Minutes: SHOW GOAT
+                # 10+ mins: GOAT
                 anim_data = load_lottieurl(url_goat)
-                st_lottie(anim_data, height=180, key="goat_anim")
+                if anim_data:
+                    st_lottie(anim_data, height=180, key="goat_anim")
+                else:
+                    st.header("🐐") # Fallback
+                
                 greeting = "Baa! You are the G.O.A.T!"
                 sub_text = "Don't forget to book a consultation."
 
@@ -82,7 +89,7 @@ def show_dashboard():
             st.markdown(f"## {greeting}")
             st.markdown(f"### *{sub_text}*")
             st.caption(f"Session Time: {int(elapsed_minutes)} mins")
-            st.progress(min(elapsed_minutes/15, 1.0)) # Visual timer bar
+            st.progress(min(elapsed_minutes/15, 1.0))
 
     # --- 6. DASHBOARD ACTIONS ---
     st.divider()
@@ -101,6 +108,6 @@ def show_dashboard():
         if st.button("📍 Find Vet", use_container_width=True):
             st.switch_page("pages/map.py")
 
-    st.image("https://img.freepik.com/free-vector/veterinarians-taking-care-pets_23-2148533585.jpg?w=1380", use_container_width=True)
+   st.image("https://img.freepik.com/free-vector/veterinarians-taking-care-pets_23-2148533585.jpg?w=1380", use_container_width=True)
 
 show_dashboard()
