@@ -108,6 +108,6 @@ def show_dashboard():
         if st.button("📍 Find Vet", use_container_width=True):
             st.switch_page("pages/map.py")
 
-   st.image("https://img.freepik.com/free-vector/veterinarians-taking-care-pets_23-2148533585.jpg?w=1380", use_container_width=True)
+    st.image("https://img.freepik.com/free-vector/veterinarians-taking-care-pets_23-2148533585.jpg?w=1380", use_container_width=True)
 
 show_dashboard()
