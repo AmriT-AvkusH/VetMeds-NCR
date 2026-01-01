@@ -5,7 +5,7 @@ st.set_page_config(page_title="VetMeds NCR", page_icon="🐾", layout="wide")
 
 # 2. DEFINE PAGES
 # User Services
-dashboard = st.Page("pages/dashboard.py", title="Home & Login", icon="🏠", default=True)
+dashboard = st.Page("pages/mydashboard.py", title="Home & Login", icon="🏠", default=True)
 buy_page = st.Page("pages/buy.py", title="Buy Medicines", icon="🛒")
 consult_page = st.Page("pages/consult.py", title="Video Consultation", icon="📹")
 pet_page = st.Page("pages/pet.py", title="Pet Health Profile", icon="🐕")
@@ -22,4 +22,5 @@ pg = st.navigation({
 })
 
 # 4. RUN NAVIGATION
+
 pg.run()
